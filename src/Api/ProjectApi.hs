@@ -34,12 +34,17 @@ type ProjectRoot = "project" :> Capture "projectId" ProjectId
 type DependencyRoot = ProjectRoot :> "dependency" 
 
 type ProjectApi =
-  -- Create a project. 
-  --ProjectRoot :> Post '[JSON] () 
+  "project" :> ( 
+    -- List all projects and summarise.
+    Get '[JSON] [ProjectSummary]
 
-  -- List all projects and summarise.
-  "project" :> Get '[JSON] [ProjectSummary]
+    :<|> Capture "projectId" ProjectId :> ( 
 
+      -- Create a project.      
+      Post '[JSON] () 
+    )
+  )
+ 
 type DependencyApi =
   --  Upload dependency data into the project.
   DependencyRoot :> ReqBody '[JSON] Dependency :> Post '[JSON] ()

@@ -18,15 +18,22 @@ library
   exposed-modules:     
     Lib
     , Api.ProjectApi
+    , Graph.Persist
+    , Graph.UniqueNodeGraph
   
-  build-depends:       base >= 4.7 && < 5
-                     , aeson
-                     , aeson-pretty
-                     , lens
-                     , servant-server
-                     , text
-                     , wai
-                     , warp
+  build-depends:    
+    base >= 4.7 && < 5
+    , aeson
+    , aeson-pretty
+    , fgl
+    , hashable
+    , haskell-neo4j-client
+    , lens
+    , servant-server
+    , text
+    , unordered-containers
+    , wai
+    , warp
   default-language:    Haskell2010
 
 executable vulgr-exe

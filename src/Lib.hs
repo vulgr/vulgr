@@ -29,10 +29,10 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = getProjects -- :<|> createProject
+server = getProjects :<|> createProject
 
 getProjects :: Handler [ProjectSummary]
 getProjects = pure $ [ProjectSummary { projectName = "test", projectDeps = Nothing, projectUrl = "test" }]
 
-createProject :: T.Text -> Handler ProjectSummary
-createProject pid = pure undefined
+createProject :: T.Text -> Handler ()
+createProject pid = pure ()
