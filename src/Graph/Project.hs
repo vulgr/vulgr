@@ -19,7 +19,7 @@ projectLabel = "Project"
 createProject :: Pool Neo.Connection -> ProjectName -> IO (Either T.Text ())
 createProject pool name = do
   eitherResult <- runTransWithPool pool $
-    TC.cypher ("CREATE (project:" <> projectLabel <> "{name : {name})") $
+    TC.cypher ("CREATE (project:" <> projectLabel <> "{name : {name}})") $
       M.fromList [("name", TC.newparam name)]
   case eitherResult of
     Right _                 -> pure (Right ())
