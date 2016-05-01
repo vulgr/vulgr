@@ -66,22 +66,28 @@ readerServer :: Pool Neo.Connection -> Server Api
 readerServer pool = enter (runAppT pool) readerServerT
 
 readerServerT :: ServerT Api App
-readerServerT = getProjects :<|> createProject
+readerServerT = listProjects :<|> createProject
 
-runAppT :: Pool Neo.Connection -> App :~> ExceptT ServantErr IO
+-- | Transform our App type back into a Handler.
+runAppT :: Pool Neo.Connection -> App :~> Handler
 runAppT pool = Nat (flip runReaderT pool . runApp)
 
 
 --------------------------------------------------------------------------------
 -- | Api Implementation.
 
-getProjects :: App [ProjectSummary]
-getProjects = pure $ [ProjectSummary { projectName = "test", projectDeps = Nothing, projectUrl = "test" }]
+listProjects :: App [ProjectSummary]
+listProjects = do
+  pool <- ask
+  eitherResult <- liftIO (Project.listProjects pool 0 10)
+  case eitherResult of
+    Right ps -> pure ps
+    Left err -> throwError (err500 { errBody = BL.fromStrict (TE.encodeUtf8 err) }) 
 
 createProject :: ProjectName -> App ()
 createProject name = do
   pool <- ask 
-  eitherResult <- liftIO $ (Project.createProject pool name)
+  eitherResult <- liftIO (Project.createProject pool name)
   case eitherResult of 
     Right _  -> pure ()
     Left err -> throwError (err500 { errBody = BL.fromStrict (TE.encodeUtf8 err) })
