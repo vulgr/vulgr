@@ -15,7 +15,7 @@ import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 
-import Api.ProjectApi
+import Api.Project
 
 type API = ProjectApi
 
@@ -34,5 +34,5 @@ server = getProjects :<|> createProject
 getProjects :: Handler [ProjectSummary]
 getProjects = pure $ [ProjectSummary { projectName = "test", projectDeps = Nothing, projectUrl = "test" }]
 
-createProject :: T.Text -> Handler ()
-createProject pid = pure ()
+createProject :: ProjectName -> Handler ()
+createProject _ = pure ()

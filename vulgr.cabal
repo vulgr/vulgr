@@ -17,8 +17,10 @@ library
   hs-source-dirs:      src
   exposed-modules:     
     Lib
-    , Api.ProjectApi
+    , Api.Project
+    , Api.Dependency
     , Graph.Persist
+    , Graph.Project
     , Graph.UniqueNodeGraph
   
   build-depends:    
@@ -29,6 +31,7 @@ library
     , hashable
     , haskell-neo4j-client
     , lens
+    , resource-pool
     , servant-server
     , text
     , unordered-containers
