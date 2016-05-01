@@ -13,6 +13,8 @@ import Control.Monad.Reader
 import Data.Aeson
 import Data.Aeson.TH
 import Data.Aeson.Encode.Pretty   (encodePretty)
+import Data.Default
+import Data.Maybe
 import qualified Data.ByteString.Lazy as BL
 import Data.Pool
 import qualified Data.Text as T
@@ -20,23 +22,24 @@ import qualified Data.Text.Encoding as TE
 import qualified Database.Neo4j as Neo
 import Network.Wai
 import Network.Wai.Handler.Warp
-import Servant 
+import Servant
 
 import Api.Project
+import Api.Common
 import Configuration
 import qualified Graph.Project as Project
 
 type Api = ProjectApi
 
 newtype App a = App { runApp :: ReaderT (Pool Neo.Connection) (ExceptT ServantErr IO) a }
-    deriving 
+    deriving
       (
       Monad
       , Functor
       , Applicative
       , MonadReader (Pool Neo.Connection)
       , MonadIO
-      , MonadError ServantErr 
+      , MonadError ServantErr
       )
 
 
@@ -76,19 +79,27 @@ runAppT pool = Nat (flip runReaderT pool . runApp)
 --------------------------------------------------------------------------------
 -- | Api Implementation.
 
-listProjects :: App [ProjectSummary]
-listProjects = do
+listProjects :: Maybe Offset -> Maybe Limit -> App (Paged [ProjectSummary])
+listProjects maybeOffset maybeLimit = do
+  let offset = fromMaybe def maybeOffset
+  let limit  = fromMaybe def maybeLimit
   pool <- ask
-  eitherResult <- liftIO (Project.listProjects pool 0 10)
+  eitherResult <- liftIO (Project.listProjects pool offset limit)
   case eitherResult of
-    Right ps -> pure ps
-    Left err -> throwError (err500 { errBody = BL.fromStrict (TE.encodeUtf8 err) }) 
+    Right ps -> pure $ (consPage ps) offset limit
+    Left err -> throwError (err500 { errBody = BL.fromStrict (TE.encodeUtf8 err) })
+ where
+  consPage projects
+    | null projects == False = Paged (Just projects)
+    | otherwise = Paged (Nothing)
+
+
 
 createProject :: ProjectName -> App ()
 createProject name = do
-  pool <- ask 
+  pool <- ask
   eitherResult <- liftIO (Project.createProject pool name)
-  case eitherResult of 
+  case eitherResult of
     Right _  -> pure ()
     Left err -> throwError (err500 { errBody = BL.fromStrict (TE.encodeUtf8 err) })
 

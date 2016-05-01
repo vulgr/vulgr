@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import GHC.Generics
 import Servant
 
+import Api.Common
 
 data ProjectSummary = ProjectSummary
   { projectName :: T.Text
@@ -21,15 +22,17 @@ data ProjectSummary = ProjectSummary
 instance ToJSON ProjectSummary
 
 type ProjectName = T.Text
-type ProjectRoot = "project" 
+type ProjectRoot = "project"
 type ProjectCapture = Capture "projectName" ProjectName
 
 type ProjectApi =
-  -- List all projects and summarise.
   ProjectRoot :> (
-    Get '[JSON] [ProjectSummary]
+    -- List all projects and summarize.
+    QueryParam "offset" Offset
+      :> QueryParam "limit" Limit
+      :> Get '[JSON] (Paged [ProjectSummary])
 
-    :<|> ProjectCapture :> Post '[JSON] () 
+    :<|> ProjectCapture :> Post '[JSON] ()
   )
- 
+
 

@@ -18,8 +18,9 @@ library
   exposed-modules:     
     Lib
     , Configuration
-    , Api.Project
+    , Api.Common
     , Api.Dependency
+    , Api.Project
     , Graph.Persist
     , Graph.Project
     , Graph.UniqueNodeGraph
@@ -29,10 +30,12 @@ library
     , aeson
     , aeson-pretty
     , bytestring
+    , data-default
     , fgl
     , filepath
     , hashable
     , haskell-neo4j-client
+    , http-api-data
     , lens
     , mtl
     , resource-pool
